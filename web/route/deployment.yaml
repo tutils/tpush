@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: route
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: route-web
+      micro: service
+  template:
+    metadata:
+      labels:
+        name: route-web
+        micro: service
+    spec:
+      containers:
+        - name: route
+          command: [
+            "/route-web",
+          ]
+          image: tutils/route-web:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: route-port
+          env:
+            - name: MICRO_SERVER_ADDRESS
+              value: "0.0.0.0:8080"
+            - name: MICRO_BROKER
+              value: "nats"
+            - name: MICRO_BROKER_ADDRESS
+              value: "nats-cluster"
+            - name: MICRO_REGISTRY
+              value: "etcd"
+            - name: MICRO_REGISTRY_ADDRESS
+              value: "etcd-cluster-client"
+            - name: ENABLE_DISTRIBUTE
+              value: "true"
+            - name: LOG_LEVEL
+              value: info
